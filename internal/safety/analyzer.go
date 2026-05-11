@@ -9,6 +9,7 @@ import (
 type Analysis struct {
 	StatementType   string
 	RequiresConfirm bool
+	IsReadOnly      bool
 }
 
 func Analyze(sql string) (Analysis, error) {
@@ -33,6 +34,9 @@ func Analyze(sql string) (Analysis, error) {
 	}
 
 	analysis := Analysis{StatementType: statementType}
+	if statementType == "SELECT" {
+		analysis.IsReadOnly = true
+	}
 	if statementType == "DELETE" || statementType == "DROP" || statementType == "TRUNCATE" || statementType == "ALTER" {
 		analysis.RequiresConfirm = true
 	}

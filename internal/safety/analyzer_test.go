@@ -38,3 +38,43 @@ func TestAnalyze_RequiresConfirmForUpdateWithoutWhere(t *testing.T) {
 		t.Fatal("expected UPDATE without WHERE to require confirmation")
 	}
 }
+
+func TestAnalyze_SelectIsReadOnly(t *testing.T) {
+	result, err := Analyze("SELECT id FROM users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsReadOnly {
+		t.Fatal("expected SELECT to be read-only")
+	}
+}
+
+func TestAnalyze_InsertIsNotReadOnly(t *testing.T) {
+	result, err := Analyze("INSERT INTO users (email) VALUES ('test@example.com')")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.IsReadOnly {
+		t.Fatal("expected INSERT to not be read-only")
+	}
+}
+
+func TestAnalyze_DeleteIsNotReadOnly(t *testing.T) {
+	result, err := Analyze("DELETE FROM users WHERE id = 1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.IsReadOnly {
+		t.Fatal("expected DELETE to not be read-only")
+	}
+}
+
+func TestAnalyze_UpdateIsNotReadOnly(t *testing.T) {
+	result, err := Analyze("UPDATE users SET active = true WHERE id = 1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.IsReadOnly {
+		t.Fatal("expected UPDATE to not be read-only")
+	}
+}
