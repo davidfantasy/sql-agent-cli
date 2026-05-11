@@ -1,0 +1,36 @@
+# Build artifacts
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test artifacts
+*.test
+*.out
+coverage.html
+coverage.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+.tmp/
+tmp/
+*.tmp
+*.log
+
+# Go vendor (if used)
+vendor/
+
+# Dependency directories
+node_modules/
