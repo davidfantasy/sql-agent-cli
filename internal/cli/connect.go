@@ -16,6 +16,7 @@ func newConnectCommand() *cobra.Command {
 		username         string
 		passwordEnv      string
 		credentialHelper string
+		readOnly         bool
 	)
 
 	cmd := &cobra.Command{
@@ -42,6 +43,7 @@ func newConnectCommand() *cobra.Command {
 				Username:         username,
 				PasswordEnv:      passwordEnv,
 				CredentialHelper: credentialHelper,
+				ReadOnly:         readOnly,
 			})
 		},
 	}
@@ -53,6 +55,7 @@ func newConnectCommand() *cobra.Command {
 	cmd.Flags().StringVar(&username, "username", "", "Database username")
 	cmd.Flags().StringVar(&passwordEnv, "password-env", "", "Environment variable containing the password")
 	cmd.Flags().StringVar(&credentialHelper, "credential-helper", "", "External helper command for credentials")
+	cmd.Flags().BoolVar(&readOnly, "read-only", false, "Mark connection as read-only")
 
 	return cmd
 }

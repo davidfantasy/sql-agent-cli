@@ -36,6 +36,26 @@ func TestConnectCommand_SavesConnection(t *testing.T) {
 	}
 }
 
+func TestConnectCommand_SavesReadOnlyConnection(t *testing.T) {
+	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
+	t.Setenv("HOME", t.TempDir())
+
+	cmd := newConnectCommand()
+	cmd.SetArgs([]string{"readonly-test", "--driver", "postgres", "--database", "app", "--read-only"})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	conn, err := config.LoadConnection("readonly-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !conn.ReadOnly {
+		t.Fatalf("expected connection to be read-only, got ReadOnly=%v", conn.ReadOnly)
+	}
+}
+
 func TestConnectCommand_RejectsUnsupportedDriver(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
