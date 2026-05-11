@@ -93,6 +93,10 @@ bash scripts/build.sh
 # Or use a credential helper (recommended)
 ./bin/sql-agent connect prod --driver mysql \
   --credential-helper "vault-helper --profile prod"
+
+# Create a read-only connection (rejects all write/DDL statements)
+./bin/sql-agent connect analytics --driver postgres \
+  --host db.example.com --database app --read-only
 ```
 
 ### Explore and Query

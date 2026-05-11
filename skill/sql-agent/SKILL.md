@@ -27,6 +27,8 @@ Do not use raw `psql` or `mysql` when `sql-agent-cli` is the intended path.
 - Read `has_more` and `next_page` before fetching more data.
 - If the CLI blocks a destructive query, stop immediately, show the warning to the human, and only retry with `--confirm` after explicit human approval.
 - Prefer credential helpers when secrets should stay out of model context.
+- Use `--read-only` when connecting to production databases to prevent accidental writes.
+- Read-only connections reject all write/DDL statements with a clear error code.
 
 ## Core Pattern
 1. Discover schema.

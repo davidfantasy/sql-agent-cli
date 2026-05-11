@@ -36,6 +36,7 @@ The following decisions were made during design discussion and are part of the v
 | Result optimization | Deterministic pagination and truncation |
 | Write support | Allowed in v1 with safety confirmation |
 | Dangerous SQL policy | Warn and require `--confirm` |
+| Read-only mode | Connection-level `--read-only` flag on `connect` |
 | Total count behavior | Cheap-first, exact totals optional/conditional |
 | Credential sources | Chat-provided, environment variables, credential helper |
 | Credential encryption key | Environment variable only |
