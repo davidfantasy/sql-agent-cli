@@ -38,7 +38,7 @@ Every query result is automatically optimized for your agent's context window:
 - **Smart Truncation** — Long text and blob fields are summarized, not dumped
 - **Deterministic Pagination** — Default 50 rows per page with `has_more` metadata; agent decides if more data is worth the tokens
 - **Column Array Format** — `{"columns": [...], "rows": [...]}` instead of repeated object keys, saving ~30% tokens on wide tables
-- **Explore Mode** — `--explore` returns a structured summary (column types, sample values, row count estimate) instead of raw rows. Perfect for first contact with an unfamiliar table.
+- **Explore Mode** — `--explore` returns a structured summary with column names, sample rows, and a cheap row-count estimate for simple table reads instead of raw paginated output. Perfect for first contact with an unfamiliar table.
 
 ### Security by Proxy
 
@@ -112,6 +112,10 @@ bash scripts/build.sh
 # Query with automatic pagination (LIMIT injected at database layer)
 ./bin/sql-agent query analytics \
   "SELECT id, email, created_at FROM users ORDER BY id" --page 1
+
+# Ask for an exact count when you need one
+./bin/sql-agent count analytics users
+./bin/sql-agent count analytics "SELECT * FROM users WHERE active = true"
 
 # Dangerous operations are blocked
 ./bin/sql-agent query prod "DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '30 days'"

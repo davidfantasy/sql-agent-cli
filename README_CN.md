@@ -38,7 +38,7 @@ Agent 查询数据库时，通常面临三个问题：
 - **智能截断** — 长文本和二进制字段自动摘要，不直接展示原始内容
 - **确定性分页** — 默认每页 50 行，带 `has_more` 元数据；Agent 自行判断是否值得消耗更多 token
 - **列数组格式** — `{"columns": [...], "rows": [...]}` 替代重复的对象键，宽表场景节省约 30% token
-- **探索模式** — `--explore` 返回结构化摘要（列类型、样本值、行数估算）而非原始行。适合首次接触陌生表
+- **探索模式** — `--explore` 返回结构化摘要，包含列名、样本行，以及对简单表查询的低成本行数估算，而不是原始分页结果。适合首次接触陌生表
 
 ### 安全代理模式
 
@@ -108,6 +108,10 @@ bash scripts/build.sh
 # 自动分页查询（LIMIT 在数据库层注入）
 ./bin/sql-agent query analytics \
   "SELECT id, email, created_at FROM users ORDER BY id" --page 1
+
+# 需要精确计数时显式调用 count
+./bin/sql-agent count analytics users
+./bin/sql-agent count analytics "SELECT * FROM users WHERE active = true"
 
 # 危险操作被拦截
 ./bin/sql-agent query prod "DELETE FROM sessions WHERE created_at < NOW() - INTERVAL '30 days'"
