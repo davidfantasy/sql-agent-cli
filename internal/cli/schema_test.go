@@ -2,7 +2,10 @@ package cli
 
 import (
 	"bytes"
+	"strings"
 	"testing"
+
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
 )
 
 func TestSchemaCommand_HasListAndDescribe(t *testing.T) {
@@ -18,6 +21,56 @@ func TestCountCommand_RequiresNameAndTarget(t *testing.T) {
 
 	if err := cmd.Execute(); err == nil {
 		t.Fatal("expected missing target to fail")
+	}
+}
+
+func TestCountCommand_RejectsWriteQueryTarget(t *testing.T) {
+	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
+	t.Setenv("HOME", t.TempDir())
+
+	connectCmd := newConnectCommand()
+	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app"})
+	if err := connectCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := newCountCommand()
+	buf := &bytes.Buffer{}
+	cmd.SetOut(buf)
+	cmd.SetErr(buf)
+	cmd.SetArgs([]string{"local", "DELETE FROM users"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected write query target to fail")
+	}
+	if !strings.Contains(err.Error(), "count target must be a table name or a read-only SELECT query") {
+		t.Fatalf("expected read-only count target error, got %v", err)
+	}
+}
+
+func TestCountCommand_RejectsMultiStatementTableTarget(t *testing.T) {
+	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
+	t.Setenv("HOME", t.TempDir())
+
+	connectCmd := newConnectCommand()
+	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app"})
+	if err := connectCmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := newCountCommand()
+	buf := &bytes.Buffer{}
+	cmd.SetOut(buf)
+	cmd.SetErr(buf)
+	cmd.SetArgs([]string{"local", "users; DROP TABLE users"})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected multi-statement table target to fail")
+	}
+	if !strings.Contains(err.Error(), "count target must be a table name or a read-only SELECT query") {
+		t.Fatalf("expected read-only count target error, got %v", err)
 	}
 }
 
