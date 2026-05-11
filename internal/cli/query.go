@@ -50,6 +50,27 @@ func newQueryCommand() *cobra.Command {
 				return err
 			}
 
+			if resolved.ReadOnly && !analysis.IsReadOnly {
+				marshalErr := emitJSON(cmd.OutOrStdout(), output.Envelope{
+					OK:      false,
+					Data:    nil,
+					Warning: nil,
+					Error: output.ErrorBody{
+						Code:    "read_only_connection_rejected",
+						Message: fmt.Sprintf("connection %q is read-only; write statements are not allowed", args[0]),
+						Details: map[string]any{
+							"connection":     args[0],
+							"statement_type": analysis.StatementType,
+						},
+					},
+					DurationMS: 0,
+				})
+				if marshalErr != nil {
+					return marshalErr
+				}
+				return errors.New("read-only connection rejected write statement")
+			}
+
 			driver, err := openDriver(resolved)
 			if err != nil {
 				return err
