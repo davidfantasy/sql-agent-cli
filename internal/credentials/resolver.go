@@ -15,6 +15,7 @@ type Resolved struct {
 	Database string
 	Username string
 	Password string
+	ReadOnly bool
 }
 
 func Resolve(conn config.Connection, helper func(config.Connection) (HelperCredentials, error)) (Resolved, error) {
@@ -24,6 +25,7 @@ func Resolve(conn config.Connection, helper func(config.Connection) (HelperCrede
 		Port:     conn.Port,
 		Database: conn.Database,
 		Username: conn.Username,
+		ReadOnly: conn.ReadOnly,
 	}
 
 	if conn.PasswordEnv != "" {
