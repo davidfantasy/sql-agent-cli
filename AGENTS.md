@@ -23,7 +23,7 @@ Environment variables:
 - Strictly adhere to schema-first, single-statement, and JSON-only product boundaries.
 - Do not treat `sql-agent-cli` as a generic SQL shell.
 - Do not introduce MCP, frontend, Windows packaging, or cloud CI capabilities beyond the current scope.
-- Keep documentation consistent across spec, plan, README, and AGENTS.md.
+- Keep documentation consistent across README and AGENTS.md.
 - Never silently relax dangerous write boundaries. `--confirm` is an explicit human approval point.
 
 Karpathy-style AI programming rules, adapted for this repository:
@@ -66,22 +66,8 @@ Core subsystem summary:
 
 Detailed documentation:
 - `docs/architecture/backend.md`
-- `docs/superpowers/specs/2026-05-11-sql-agent-cli-design.md`
 
-## 5. Frontend Architecture
-
-No frontend currently. Do not invent UI structures, routing, component systems, or API SDK conventions.
-
-If a frontend is added in the future, document:
-- Tech stack
-- Routing approach
-- API layer conventions
-- Component library standards
-
-Placeholder:
-- `docs/architecture/frontend.md`
-
-## 6. Local Development and Validation Loop
+## 5. Local Development and Validation Loop
 
 1. Edit code or documentation.
 2. Run `bash scripts/format.sh`.
@@ -91,7 +77,7 @@ Placeholder:
 6. If modifying packaging logic, run `bash scripts/package.sh`.
 7. Check if `README.md`, `AGENTS.md`, and relevant `docs/` need synchronization.
 
-## 7. Quality Checks
+## 6. Quality Checks
 
 - format: `bash scripts/format.sh`
 - build: `bash scripts/build.sh`
@@ -105,22 +91,17 @@ Command matrix:
 Change Go code       -> format + build + test
 Change skill         -> build-skill
 Change packaging     -> package
-Change arch/behavior -> check spec/plan/README/AGENTS consistency
+Change arch/behavior -> check README/AGENTS consistency
 ```
 
-## 8. Documentation Rules
+## 7. Documentation Rules
 
 Document navigation:
-- Design spec: `docs/superpowers/specs/2026-05-11-sql-agent-cli-design.md`
-- Implementation plan: `docs/superpowers/plans/2026-05-11-sql-agent-cli.md`
-- Backend architecture: `docs/architecture/backend.md`
-- Frontend placeholder: `docs/architecture/frontend.md`
-- Local development: `docs/development.md`
+- Architecture: `docs/architecture.md`
 - Skill package: `skill/sql-agent/SKILL.md`
 
 Update rules:
-- Change CLI command surface: Update README, AGENTS, spec.
+- Change CLI command surface: Update README, AGENTS.
 - Change package structure or responsibilities: Update AGENTS, `docs/architecture/backend.md`.
-- Change local scripts: Update README, AGENTS, `docs/development.md`.
-- Change skill triggers or behavior: Update `skill/sql-agent/SKILL.md`, README, related evals.
-- Change scope boundaries: Update spec and plan to prevent implementation drift.
+- Change local scripts: Update README, AGENTS.
+- Change skill triggers or behavior: Update `skill/sql-agent/SKILL.md`, README.
