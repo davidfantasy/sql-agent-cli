@@ -179,8 +179,8 @@ func runCLI(t *testing.T, env []string, args ...string) string {
 	cmd.Stdout = &out
 	cmd.Stderr = &out
 	if err := cmd.Run(); err != nil {
-		// blocked dangerous writes are expected in tests and still produce output
-		if !strings.Contains(out.String(), "destructive_query_requires_confirmation") {
+		// Blocked writes are expected in tests and still produce output.
+		if !strings.Contains(out.String(), "destructive_query_requires_confirmation") && !strings.Contains(out.String(), "read_only_connection_rejected") {
 			t.Fatalf("sql-agent %v failed: %v\n%s", args, err, out.String())
 		}
 	}
