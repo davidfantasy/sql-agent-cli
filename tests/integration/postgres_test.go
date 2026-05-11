@@ -29,4 +29,18 @@ func TestPostgresE2E(t *testing.T) {
 	if !strings.Contains(blockedOut, "destructive_query_requires_confirmation") {
 		t.Fatalf("expected blocked dangerous write output, got %q", blockedOut)
 	}
+
+	// Test read-only connection rejects write
+	runCLI(t, env, "connect", "pg-readonly", "--driver", "postgres", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "postgres", "--password-env", "PG_PASSWORD", "--read-only")
+
+	readOnlyBlockedOut := runCLI(t, append(env, "PG_PASSWORD=postgres"), "query", "pg-readonly", "DELETE FROM users")
+	if !strings.Contains(readOnlyBlockedOut, "read_only_connection_rejected") {
+		t.Fatalf("expected read-only connection to block write, got %q", readOnlyBlockedOut)
+	}
+
+	// Test read-only connection allows read
+	readOnlyQueryOut := runCLI(t, append(env, "PG_PASSWORD=postgres"), "query", "pg-readonly", "SELECT id, email FROM users ORDER BY id")
+	if !strings.Contains(readOnlyQueryOut, "alice@example.com") {
+		t.Fatalf("expected read-only connection to allow read, got %q", readOnlyQueryOut)
+	}
 }
