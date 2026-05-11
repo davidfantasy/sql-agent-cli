@@ -24,27 +24,6 @@ func newQueryCommand() *cobra.Command {
 				return err
 			}
 
-			if analysis.RequiresConfirm && !confirm {
-				marshalErr := emitJSON(cmd.OutOrStdout(), output.Envelope{
-					OK:      false,
-					Data:    nil,
-					Warning: nil,
-					Error: output.ErrorBody{
-						Code:    "destructive_query_requires_confirmation",
-						Message: "statement is blocked until a human reviews the warning and explicitly approves retrying with --confirm",
-						Details: map[string]any{
-							"statement_type": analysis.StatementType,
-							"action":         "show this warning to the human before retrying with --confirm",
-						},
-					},
-					DurationMS: 0,
-				})
-				if marshalErr != nil {
-					return marshalErr
-				}
-				return errors.New("destructive query requires confirmation")
-			}
-
 			resolved, err := resolveConnection(args[0])
 			if err != nil {
 				return err
@@ -69,6 +48,27 @@ func newQueryCommand() *cobra.Command {
 					return marshalErr
 				}
 				return errors.New("read-only connection rejected write statement")
+			}
+
+			if analysis.RequiresConfirm && !confirm {
+				marshalErr := emitJSON(cmd.OutOrStdout(), output.Envelope{
+					OK:      false,
+					Data:    nil,
+					Warning: nil,
+					Error: output.ErrorBody{
+						Code:    "destructive_query_requires_confirmation",
+						Message: "statement is blocked until a human reviews the warning and explicitly approves retrying with --confirm",
+						Details: map[string]any{
+							"statement_type": analysis.StatementType,
+							"action":         "show this warning to the human before retrying with --confirm",
+						},
+					},
+					DurationMS: 0,
+				})
+				if marshalErr != nil {
+					return marshalErr
+				}
+				return errors.New("destructive query requires confirmation")
 			}
 
 			driver, err := openDriver(resolved)
