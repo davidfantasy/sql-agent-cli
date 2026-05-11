@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/david/sql-agent-cli/internal/output"
+	"github.com/davidfantasy/sql-agent-cli/internal/output"
 )
 
 func TestQueryCommand_BlocksDeleteWithoutConfirm(t *testing.T) {

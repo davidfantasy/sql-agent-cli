@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/david/sql-agent-cli/internal/cli"
+	"github.com/davidfantasy/sql-agent-cli/internal/cli"
 )
 
 func main() {

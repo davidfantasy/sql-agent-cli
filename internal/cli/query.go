@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/david/sql-agent-cli/internal/db"
-	"github.com/david/sql-agent-cli/internal/output"
-	"github.com/david/sql-agent-cli/internal/safety"
+	"github.com/davidfantasy/sql-agent-cli/internal/db"
+	"github.com/davidfantasy/sql-agent-cli/internal/output"
+	"github.com/davidfantasy/sql-agent-cli/internal/safety"
 	"github.com/spf13/cobra"
 )
 

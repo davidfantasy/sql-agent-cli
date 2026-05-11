@@ -6,10 +6,10 @@ import (
 	"io"
 	"strings"
 
-	"github.com/david/sql-agent-cli/internal/config"
-	"github.com/david/sql-agent-cli/internal/credentials"
-	"github.com/david/sql-agent-cli/internal/db"
-	"github.com/david/sql-agent-cli/internal/output"
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
+	"github.com/davidfantasy/sql-agent-cli/internal/credentials"
+	"github.com/davidfantasy/sql-agent-cli/internal/db"
+	"github.com/davidfantasy/sql-agent-cli/internal/output"
 )
 
 func emitJSON(writer io.Writer, payload output.Envelope) error {

@@ -3,7 +3,7 @@ package cli
 import (
 	"errors"
 
-	"github.com/david/sql-agent-cli/internal/config"
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 

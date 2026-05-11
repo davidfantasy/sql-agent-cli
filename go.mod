@@ -1,4 +1,4 @@
-module github.com/david/sql-agent-cli
+module github.com/davidfantasy/sql-agent-cli
 
 go 1.24.0
 

@@ -3,7 +3,7 @@ package credentials
 import (
 	"testing"
 
-	"github.com/david/sql-agent-cli/internal/config"
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
 )
 
 func TestParseHelperResponse_ValidJSON(t *testing.T) {

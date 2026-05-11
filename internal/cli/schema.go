@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/david/sql-agent-cli/internal/output"
+	"github.com/davidfantasy/sql-agent-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

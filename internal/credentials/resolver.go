@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/david/sql-agent-cli/internal/config"
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
 )
 
 // Resolved is the fully materialized connection config used by drivers.

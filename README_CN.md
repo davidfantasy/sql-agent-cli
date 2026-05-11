@@ -81,7 +81,7 @@ cp -R dist/sql-agent ~/.config/opencode/skills/
 
 ```bash
 # 克隆并构建
-git clone https://github.com/david/sql-agent-cli.git
+git clone https://github.com/davidfantasy/sql-agent-cli.git
 cd sql-agent-cli
 bash scripts/build.sh
 

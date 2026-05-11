@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/david/sql-agent-cli/internal/config"
+	"github.com/davidfantasy/sql-agent-cli/internal/config"
 )
 
 func TestConnectCommand_RequiresName(t *testing.T) {
