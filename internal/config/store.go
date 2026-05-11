@@ -16,6 +16,7 @@ type Connection struct {
 	Username         string `json:"username,omitempty"`
 	PasswordEnv      string `json:"password_env,omitempty"`
 	CredentialHelper string `json:"credential_helper,omitempty"`
+	ReadOnly         bool   `json:"read_only,omitempty"`
 }
 
 func storePath(name string) string {
