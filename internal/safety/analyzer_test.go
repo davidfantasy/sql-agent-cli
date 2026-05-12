@@ -49,6 +49,36 @@ func TestAnalyze_SelectIsReadOnly(t *testing.T) {
 	}
 }
 
+func TestAnalyze_ShowTablesIsReadOnly(t *testing.T) {
+	result, err := Analyze("SHOW TABLES")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsReadOnly {
+		t.Fatal("expected SHOW TABLES to be read-only")
+	}
+}
+
+func TestAnalyze_DescribeIsReadOnly(t *testing.T) {
+	result, err := Analyze("DESCRIBE users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsReadOnly {
+		t.Fatal("expected DESCRIBE to be read-only")
+	}
+}
+
+func TestAnalyze_ExplainIsReadOnly(t *testing.T) {
+	result, err := Analyze("EXPLAIN SELECT * FROM users")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !result.IsReadOnly {
+		t.Fatal("expected EXPLAIN to be read-only")
+	}
+}
+
 func TestAnalyze_InsertIsNotReadOnly(t *testing.T) {
 	result, err := Analyze("INSERT INTO users (email) VALUES ('test@example.com')")
 	if err != nil {

@@ -34,7 +34,8 @@ func Analyze(sql string) (Analysis, error) {
 	}
 
 	analysis := Analysis{StatementType: statementType}
-	if statementType == "SELECT" {
+	switch statementType {
+	case "SELECT", "SHOW", "DESCRIBE", "DESC", "EXPLAIN":
 		analysis.IsReadOnly = true
 	}
 	if statementType == "DELETE" || statementType == "DROP" || statementType == "TRUNCATE" || statementType == "ALTER" {
