@@ -1,6 +1,6 @@
 ---
 name: sql-agent
-description: Use when an agent needs to inspect or modify MySQL or PostgreSQL through sql-agent-cli, especially when schema-first querying, pagination discipline, dangerous write confirmation, or credential-helper handling matters.
+description: Use when an agent needs to connect to, inspect, query, or modify MySQL or PostgreSQL through sql-agent-cli. Invoke this whenever the user mentions database setup, connection onboarding, password-env configuration, credential helpers, schema-first querying, pagination discipline, or dangerous write confirmation, even if they do not explicitly mention sql-agent-cli.
 ---
 
 # sql-agent Skill
@@ -20,6 +20,10 @@ The CLI binary is embedded in this skill package at `bin/sql-agent`. Use the rel
 Do not use raw `psql` or `mysql` when `sql-agent-cli` is the intended path.
 
 ## Quick Reference
+- If the named connection does not exist yet, create it with `./bin/sql-agent connect <connection> --wizard` when the human is at their own terminal.
+- If the human wants the agent to connect automatically, use `./bin/sql-agent connect <connection> --driver ... --database ... --password-env ENV_NAME` or `--credential-helper ...`.
+- Explain `--password-env` concretely: the human must export the variable in their shell first, for example `export DB_PASSWORD='your-password'`, then the agent can run `./bin/sql-agent connect prod --password-env DB_PASSWORD ...`.
+- If `sql-agent connect` says the password env is missing, copy the env name back to the human and ask them to export it in their terminal. Do not ask them to paste the password into chat unless they explicitly insist.
 - Start with `./bin/sql-agent schema list <connection>`.
 - Narrow with `./bin/sql-agent schema describe <connection> <table>`.
 - Query only the columns you need.
@@ -31,11 +35,20 @@ Do not use raw `psql` or `mysql` when `sql-agent-cli` is the intended path.
 - Read-only connections reject all write/DDL statements with a clear error code.
 
 ## Core Pattern
-1. Discover schema.
-2. Narrow to the smallest useful query.
-3. Read pagination metadata before asking for more data.
-4. Treat dangerous write warnings as a hard stop, not as a routine retry.
-5. Prefer helper-based credentials over plaintext secrets.
+1. If the connection is missing, decide whether the human should run `connect --wizard` locally or whether the agent can run `connect` with `--password-env` or `--credential-helper`.
+2. Discover schema.
+3. Narrow to the smallest useful query.
+4. Read pagination metadata before asking for more data.
+5. Treat dangerous write warnings as a hard stop, not as a routine retry.
+6. Prefer helper-based credentials, then password env vars, before asking for any secret directly.
+
+## Connection Setup Rules
+- `connect` verifies the database connection before saving it. Failed verification means there is no usable saved connection yet.
+- Use `--wizard` when the human is on the same machine and wants to enter the password locally without exposing it to the agent.
+- Use non-interactive `connect` only when the password comes from `--password-env` or `--credential-helper`.
+- Do not put plaintext passwords on the command line.
+- If the CLI says `password env "DB_PASSWORD" is not set`, tell the human exactly what to run, for example `export DB_PASSWORD='your-password'`, then rerun `connect`.
+- After a successful `connect`, continue using the saved connection name. Do not keep re-requesting the secret.
 
 ## Dangerous Writes
 - `DELETE`, `DROP`, `TRUNCATE`, `ALTER`, and broad `UPDATE` statements are not normal retries.
@@ -46,6 +59,9 @@ Do not use raw `psql` or `mysql` when `sql-agent-cli` is the intended path.
 
 ## Example
 ```bash
+./bin/sql-agent connect analytics --wizard
+export DB_PASSWORD='your-password'
+./bin/sql-agent connect analytics --driver postgres --host db.example.com --database app --username analyst --password-env DB_PASSWORD
 ./bin/sql-agent schema list analytics
 ./bin/sql-agent schema describe analytics users
 ./bin/sql-agent query analytics "SELECT id, email, created_at FROM users ORDER BY id" --page 1
@@ -53,6 +69,7 @@ Do not use raw `psql` or `mysql` when `sql-agent-cli` is the intended path.
 
 ## Common Mistakes
 - Skipping schema inspection and guessing table shape.
+- Asking the human to paste database passwords into chat when `--wizard`, `--password-env`, or `--credential-helper` would avoid it.
 - Using `SELECT *` during exploration.
 - Increasing page size before tightening predicates.
 - Treating `--confirm` as routine instead of an explicit human approval boundary.

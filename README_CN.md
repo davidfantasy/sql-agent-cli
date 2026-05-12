@@ -85,7 +85,11 @@ git clone https://github.com/davidfantasy/sql-agent-cli.git
 cd sql-agent-cli
 bash scripts/build.sh
 
-# 连接数据库
+# 在你自己的终端里连接数据库（本地输入密码，校验成功后才保存）
+./bin/sql-agent connect analytics --wizard
+
+# 或让 Agent 通过密码环境变量自动连接
+export DB_PASSWORD='your-password'
 ./bin/sql-agent connect analytics --driver postgres \
   --host db.example.com --port 5432 --database app \
   --username analyst --password-env DB_PASSWORD
@@ -93,7 +97,14 @@ bash scripts/build.sh
 # 或使用凭证助手（推荐）
 ./bin/sql-agent connect prod --driver mysql \
   --credential-helper "vault-helper --profile prod"
+
+# 创建只读连接（拒绝所有写入/DDL）
+./bin/sql-agent connect analytics --driver postgres \
+  --host db.example.com --database app \
+  --username analyst --password-env DB_PASSWORD --read-only
 ```
+
+`connect` 会先真实校验数据库连接，成功后才保存。非交互模式必须提供 `--password-env` 或 `--credential-helper`。如果你写了 `--password-env DB_PASSWORD`，但本地没有设置 `DB_PASSWORD`，CLI 会直接提示类似 `export DB_PASSWORD=your-password`，方便 Agent 明确告诉用户去终端补充，而不是把密码发进聊天。
 
 ### 探索与查询
 

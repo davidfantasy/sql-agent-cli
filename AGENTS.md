@@ -65,7 +65,7 @@ Core subsystem summary:
 - Output layer: Pagination, truncation, JSON envelope
 
 Detailed documentation:
-- `docs/architecture/backend.md`
+- `docs/architecture.md`
 
 ## 5. Local Development and Validation Loop
 
@@ -102,6 +102,6 @@ Document navigation:
 
 Update rules:
 - Change CLI command surface: Update README, AGENTS.
-- Change package structure or responsibilities: Update AGENTS, `docs/architecture/backend.md`.
+- Change package structure or responsibilities: Update AGENTS, `docs/architecture.md`.
 - Change local scripts: Update README, AGENTS.
 - Change skill triggers or behavior: Update `skill/sql-agent/SKILL.md`, README.

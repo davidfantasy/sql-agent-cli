@@ -2,6 +2,7 @@ package credentials
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/davidfantasy/sql-agent-cli/internal/config"
@@ -30,6 +31,9 @@ func Resolve(conn config.Connection, helper func(config.Connection) (HelperCrede
 
 	if conn.PasswordEnv != "" {
 		resolved.Password = os.Getenv(conn.PasswordEnv)
+		if resolved.Password == "" {
+			return Resolved{}, fmt.Errorf("password env %q is not set; export it before running sql-agent connect, for example: export %s=your-password", conn.PasswordEnv, conn.PasswordEnv)
+		}
 	}
 
 	if conn.CredentialHelper != "" {

@@ -33,6 +33,7 @@ type Driver interface {
 	Exec(sql string) (ExecOutput, error)
 	ListSchema() ([]string, error)
 	DescribeTable(name string) (any, error)
+	Ping() error
 	Close() error
 }
 
@@ -212,6 +213,10 @@ func (d *sqlDriver) injectLimit(sql string, limit, offset int) string {
 
 func (d *sqlDriver) Close() error {
 	return d.db.Close()
+}
+
+func (d *sqlDriver) Ping() error {
+	return d.db.Ping()
 }
 
 func normalizeValue(value any) any {

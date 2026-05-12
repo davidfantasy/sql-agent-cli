@@ -4,7 +4,7 @@
 
 ## Package Responsibilities
 
-- `internal/cli`: Cobra commands for `connect`, `disconnect`, `query`, `schema`, and `count`. This layer validates arguments, resolves named connections, and emits JSON envelopes.
+- `internal/cli`: Cobra commands for `connect`, `disconnect`, `query`, `schema`, and `count`. This layer validates arguments, runs the local connect wizard, verifies named connections before saving them, resolves stored connections, and emits JSON envelopes.
 - `internal/config`: Encrypted local storage for named connections plus master-key handling. Connection records live under `~/.sql-agent/connections/*.enc`.
 - `internal/credentials`: Merges stored connection data with password environment variables or credential-helper responses.
 - `internal/safety`: Enforces the single-statement boundary, classifies statement types, and marks destructive statements or read-only queries.
@@ -16,10 +16,12 @@
 Most commands follow the same path:
 
 1. Load the encrypted named connection.
-2. Resolve credentials from env or credential helper when needed.
+2. Resolve credentials from env, credential helper, or locally prompted wizard input when needed.
 3. Open the MySQL or PostgreSQL driver.
 4. Run the requested read, write, schema, or count operation.
 5. Normalize the result into the shared JSON envelope.
+
+`connect` is slightly different: it gathers connection fields from flags or the local terminal wizard, applies driver defaults such as ports, verifies the connection with a real database ping, and only then writes the encrypted record.
 
 `query` adds one extra step before execution: `internal/safety` analyzes the SQL so the CLI can block multi-statement input, require `--confirm` for dangerous writes, and reject writes on read-only connections.
 
@@ -50,6 +52,6 @@ Query results use the token-efficient column-array shape documented in the desig
 - One SQL statement per invocation.
 - Dangerous writes require `--confirm` after a human reviews the warning.
 - Read-only connections reject write and DDL statements before the database sees them.
-- Credential helpers are the only path that keeps secrets out of model context.
+- Credential helpers and the local `connect --wizard` path keep secrets out of model context.
 
 These constraints are product behavior, not optional conveniences. New features should preserve them.

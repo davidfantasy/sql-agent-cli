@@ -27,9 +27,12 @@ func TestCountCommand_RequiresNameAndTarget(t *testing.T) {
 func TestCountCommand_RejectsWriteQueryTarget(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
+	originalOpen := openConnectionForValidation
+	defer func() { openConnectionForValidation = originalOpen }()
+	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
 	connectCmd := newConnectCommand()
-	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app"})
+	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
@@ -52,9 +55,12 @@ func TestCountCommand_RejectsWriteQueryTarget(t *testing.T) {
 func TestCountCommand_RejectsMultiStatementTableTarget(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
+	originalOpen := openConnectionForValidation
+	defer func() { openConnectionForValidation = originalOpen }()
+	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
 	connectCmd := newConnectCommand()
-	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app"})
+	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}

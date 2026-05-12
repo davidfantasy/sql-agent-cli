@@ -59,3 +59,18 @@ func TestResolve_RequiresDriverAndDatabase(t *testing.T) {
 		t.Fatal("expected missing required fields to fail")
 	}
 }
+
+func TestResolve_RequiresConfiguredPasswordEnv(t *testing.T) {
+	conn := config.Connection{
+		Driver:      "postgres",
+		Database:    "app",
+		PasswordEnv: "DB_PASSWORD",
+	}
+
+	_, err := Resolve(conn, func(config.Connection) (HelperCredentials, error) {
+		return HelperCredentials{}, nil
+	})
+	if err == nil {
+		t.Fatal("expected missing password env to fail")
+	}
+}

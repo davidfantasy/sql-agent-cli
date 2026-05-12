@@ -85,7 +85,11 @@ git clone https://github.com/davidfantasy/sql-agent-cli.git
 cd sql-agent-cli
 bash scripts/build.sh
 
-# Connect to a database
+# Connect to a database from your own terminal (local password prompt, verified before save)
+./bin/sql-agent connect analytics --wizard
+
+# Or let an agent connect automatically with a password env var
+export DB_PASSWORD='your-password'
 ./bin/sql-agent connect analytics --driver postgres \
   --host db.example.com --port 5432 --database app \
   --username analyst --password-env DB_PASSWORD
@@ -96,8 +100,11 @@ bash scripts/build.sh
 
 # Create a read-only connection (rejects all write/DDL statements)
 ./bin/sql-agent connect analytics --driver postgres \
-  --host db.example.com --database app --read-only
+  --host db.example.com --database app \
+  --username analyst --password-env DB_PASSWORD --read-only
 ```
+
+`connect` now verifies the database connection before saving it. Non-interactive mode requires `--password-env` or `--credential-helper`. If `--password-env DB_PASSWORD` is set but `DB_PASSWORD` is missing, the CLI returns a direct hint such as `export DB_PASSWORD=your-password` so the agent can ask the user to provide it outside the chat.
 
 ### Explore and Query
 

@@ -29,6 +29,8 @@ type HelperResponse struct {
 	Credentials HelperCredentials `json:"credentials"`
 }
 
+const inlineHelperPrefix = "sql-agent-inline://"
+
 func ParseHelperResponse(data []byte) (HelperResponse, error) {
 	var response HelperResponse
 	err := json.Unmarshal(data, &response)
@@ -36,6 +38,10 @@ func ParseHelperResponse(data []byte) (HelperResponse, error) {
 }
 
 func RunCredentialHelper(connectionName, driver, command string) (HelperCredentials, error) {
+	if strings.HasPrefix(command, inlineHelperPrefix) {
+		return HelperCredentials{Password: strings.TrimPrefix(command, inlineHelperPrefix)}, nil
+	}
+
 	request := HelperRequest{
 		Version:    1,
 		Action:     "resolve",

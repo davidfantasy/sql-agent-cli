@@ -13,9 +13,12 @@ import (
 func TestQueryCommand_BlocksDeleteWithoutConfirm(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
+	originalOpen := openConnectionForValidation
+	defer func() { openConnectionForValidation = originalOpen }()
+	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
 	connectCmd := newConnectCommand()
-	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app"})
+	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
@@ -57,9 +60,12 @@ func TestEmitJSON_WritesEnvelope(t *testing.T) {
 func TestQueryCommand_RejectsWriteOnReadOnlyConnection(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
+	originalOpen := openConnectionForValidation
+	defer func() { openConnectionForValidation = originalOpen }()
+	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
 	connectCmd := newConnectCommand()
-	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--read-only"})
+	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret"), "--read-only"})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
@@ -85,9 +91,12 @@ func TestQueryCommand_RejectsWriteOnReadOnlyConnection(t *testing.T) {
 func TestQueryCommand_ReadOnlyConnectionAllowsRead(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
+	originalOpen := openConnectionForValidation
+	defer func() { openConnectionForValidation = originalOpen }()
+	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
 	connectCmd := newConnectCommand()
-	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--read-only"})
+	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret"), "--read-only"})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
