@@ -11,7 +11,7 @@ import (
 )
 
 func TestConnectCommand_RequiresName(t *testing.T) {
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{})
 
 	if err := cmd.Execute(); err == nil {
@@ -26,7 +26,7 @@ func TestConnectCommand_SavesConnection(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "postgres", "--database", "app", "--host", "127.0.0.1", "--port", "5432", "--username", "agent", "--credential-helper", inlineCredentialHelperCommand("secret")})
 
 	if err := cmd.Execute(); err != nil {
@@ -49,7 +49,7 @@ func TestConnectCommand_SavesReadOnlyConnection(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"readonly-test", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret"), "--read-only"})
 
 	if err := cmd.Execute(); err != nil {
@@ -69,7 +69,7 @@ func TestConnectCommand_RejectsUnsupportedDriver(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"local", "--driver", "sqlite", "--database", "./dev.db"})
 
 	if err := cmd.Execute(); err == nil {
@@ -81,7 +81,7 @@ func TestConnectCommand_RequiresCredentialSourceOutsideWizard(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "postgres", "--database", "app"})
 
 	err := cmd.Execute()
@@ -107,7 +107,7 @@ func TestConnectCommand_DefaultsPostgresPort(t *testing.T) {
 		return nil
 	}
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "postgres", "--database", "app", "--password-env", "DB_PASSWORD"})
 
 	if err := cmd.Execute(); err != nil {
@@ -141,7 +141,7 @@ func TestConnectCommand_DefaultsMySQLPort(t *testing.T) {
 		return nil
 	}
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "mysql", "--database", "app", "--password-env", "DB_PASSWORD"})
 
 	if err := cmd.Execute(); err != nil {
@@ -157,7 +157,7 @@ func TestConnectCommand_RequiresConfiguredPasswordEnv(t *testing.T) {
 	t.Setenv(config.MasterKeyEnv, "0123456789abcdef0123456789abcdef")
 	t.Setenv("HOME", t.TempDir())
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "postgres", "--database", "app", "--password-env", "DB_PASSWORD"})
 
 	err := cmd.Execute()
@@ -184,7 +184,7 @@ func TestConnectCommand_DoesNotSaveConnectionWhenValidationFails(t *testing.T) {
 		return os.ErrPermission
 	}
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetArgs([]string{"prod", "--driver", "postgres", "--database", "app", "--password-env", "DB_PASSWORD"})
 
 	err := cmd.Execute()
@@ -234,7 +234,7 @@ func TestConnectCommand_WizardStoresInlineCredentialAndVerifies(t *testing.T) {
 		return []byte("secret"), nil
 	}
 
-	cmd := newConnectCommand()
+	cmd := newConnectionAddCommand()
 	cmd.SetOut(&bytes.Buffer{})
 	cmd.SetErr(&bytes.Buffer{})
 	cmd.SetArgs([]string{"prod", "--wizard"})
@@ -279,7 +279,7 @@ func TestDisconnectCommand_RemovesConnection(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd := newDisconnectCommand()
+	cmd := newConnectionRemoveCommand()
 	cmd.SetArgs([]string{"local"})
 
 	if err := cmd.Execute(); err != nil {

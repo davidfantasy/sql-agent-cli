@@ -17,7 +17,7 @@ func TestQueryCommand_BlocksDeleteWithoutConfirm(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	connectCmd := newConnectCommand()
+	connectCmd := newConnectionAddCommand()
 	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
@@ -64,7 +64,7 @@ func TestQueryCommand_RejectsWriteOnReadOnlyConnection(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	connectCmd := newConnectCommand()
+	connectCmd := newConnectionAddCommand()
 	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret"), "--read-only"})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
@@ -95,7 +95,7 @@ func TestQueryCommand_ReadOnlyConnectionAllowsRead(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	connectCmd := newConnectCommand()
+	connectCmd := newConnectionAddCommand()
 	connectCmd.SetArgs([]string{"readonly-conn", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret"), "--read-only"})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)

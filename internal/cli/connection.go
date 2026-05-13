@@ -11,6 +11,7 @@ import (
 
 	"github.com/davidfantasy/sql-agent-cli/internal/config"
 	"github.com/davidfantasy/sql-agent-cli/internal/credentials"
+	"github.com/davidfantasy/sql-agent-cli/internal/output"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
@@ -21,7 +22,41 @@ var (
 	readPasswordInput           = term.ReadPassword
 )
 
-func newConnectCommand() *cobra.Command {
+func newConnectionCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "connection",
+		Short: "Manage saved database connections",
+		Long: `List, add, remove, and inspect saved database connections.
+
+Connection records are encrypted with AES-256-GCM and stored under ~/.sql-agent/connections/.`,
+	}
+
+	cmd.AddCommand(
+		newConnectionListCommand(),
+		newConnectionAddCommand(),
+		newConnectionRemoveCommand(),
+		newConnectionShowCommand(),
+	)
+
+	return cmd
+}
+
+func newConnectionListCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List saved connections",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			summaries, err := config.ListConnections()
+			if err != nil {
+				return err
+			}
+			return emitJSON(cmd.OutOrStdout(), output.Envelope{OK: true, Data: map[string]any{"connections": summaries}})
+		},
+	}
+}
+
+func newConnectionAddCommand() *cobra.Command {
 	var (
 		driver           string
 		host             string
@@ -35,7 +70,7 @@ func newConnectCommand() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "connect <name>",
+		Use:   "add <name>",
 		Short: "Create, verify, and store a named connection",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -78,13 +113,48 @@ func newConnectCommand() *cobra.Command {
 	cmd.Flags().IntVar(&port, "port", 0, "Database port")
 	cmd.Flags().StringVar(&database, "database", "", "Database name")
 	cmd.Flags().StringVar(&username, "username", "", "Database username")
-	cmd.Flags().StringVar(&passwordEnv, "password-env", "", "Environment variable containing the password (for example: export DB_PASSWORD=... && sql-agent connect ... --password-env DB_PASSWORD)")
+	cmd.Flags().StringVar(&passwordEnv, "password-env", "", "Environment variable containing the password")
 	cmd.Flags().StringVar(&credentialHelper, "credential-helper", "", "External helper command for credentials")
 	cmd.Flags().BoolVar(&readOnly, "read-only", false, "Mark connection as read-only")
 	cmd.Flags().BoolVar(&wizard, "wizard", false, "Prompt for connection fields in the local terminal and hide password input")
 	cmd.Flags().BoolVarP(&wizard, "interactive", "i", false, "Alias for --wizard")
 
 	return cmd
+}
+
+func newConnectionRemoveCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "remove <name>",
+		Short: "Remove a named connection",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return config.DeleteConnection(args[0])
+		},
+	}
+}
+
+func newConnectionShowCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "show <name>",
+		Short: "Display connection details (no secrets exposed)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			conn, err := config.LoadConnection(args[0])
+			if err != nil {
+				return err
+			}
+			summary := config.ConnectionSummary{
+				Name:     conn.Name,
+				Driver:   conn.Driver,
+				Host:     conn.Host,
+				Port:     conn.Port,
+				Database: conn.Database,
+				Username: conn.Username,
+				ReadOnly: conn.ReadOnly,
+			}
+			return emitJSON(cmd.OutOrStdout(), output.Envelope{OK: true, Data: summary})
+		},
+	}
 }
 
 func validateConnectFlags(connection config.Connection) error {

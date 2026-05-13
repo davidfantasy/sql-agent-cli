@@ -4,6 +4,14 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
+)
+
+var (
+	storeDir = func() string {
+		home, _ := os.UserHomeDir()
+		return filepath.Join(home, ".sql-agent", "connections")
+	}
 )
 
 // Connection is the persisted configuration for a named database target.
@@ -19,9 +27,19 @@ type Connection struct {
 	ReadOnly         bool   `json:"read_only,omitempty"`
 }
 
+// ConnectionSummary is a safe subset of connection info for listing (no secrets).
+type ConnectionSummary struct {
+	Name     string `json:"name"`
+	Driver   string `json:"driver"`
+	Host     string `json:"host,omitempty"`
+	Port     int    `json:"port,omitempty"`
+	Database string `json:"database"`
+	Username string `json:"username,omitempty"`
+	ReadOnly bool   `json:"read_only"`
+}
+
 func storePath(name string) string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".sql-agent", "connections", name+".enc")
+	return filepath.Join(storeDir(), name+".enc")
 }
 
 func SaveConnection(connection Connection) error {
@@ -68,4 +86,37 @@ func DeleteConnection(name string) error {
 		return err
 	}
 	return nil
+}
+
+// ListConnections returns a summary of every saved connection.
+func ListConnections() ([]ConnectionSummary, error) {
+	entries, err := os.ReadDir(storeDir())
+	if err != nil {
+		if os.IsNotExist(err) {
+			return []ConnectionSummary{}, nil
+		}
+		return nil, err
+	}
+
+	var summaries []ConnectionSummary
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".enc") {
+			continue
+		}
+		name := strings.TrimSuffix(entry.Name(), ".enc")
+		conn, err := LoadConnection(name)
+		if err != nil {
+			continue
+		}
+		summaries = append(summaries, ConnectionSummary{
+			Name:     conn.Name,
+			Driver:   conn.Driver,
+			Host:     conn.Host,
+			Port:     conn.Port,
+			Database: conn.Database,
+			Username: conn.Username,
+			ReadOnly: conn.ReadOnly,
+		})
+	}
+	return summaries, nil
 }

@@ -4,7 +4,7 @@
 
 ## Package Responsibilities
 
-- `internal/cli`: Cobra commands for `connect`, `disconnect`, `query`, `schema`, and `count`. This layer validates arguments, runs the local connect wizard, verifies named connections before saving them, resolves stored connections, and emits JSON envelopes.
+- `internal/cli`: Cobra commands for `connection` (list/add/remove/show), `query`, `schema`, and `count`. This layer validates arguments, runs the local connect wizard, verifies named connections before saving them, resolves stored connections, and emits JSON envelopes.
 - `internal/config`: Encrypted local storage for named connections plus master-key handling. Connection records live under `~/.sql-agent/connections/*.enc`.
 - `internal/credentials`: Merges stored connection data with password environment variables or credential-helper responses.
 - `internal/safety`: Enforces the single-statement boundary, classifies statement types, and marks destructive statements or read-only queries.

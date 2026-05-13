@@ -15,7 +15,7 @@ func TestMySQLE2E(t *testing.T) {
 	env := []string{"DB_AGENT_MASTER_KEY=test-master-key", "HOME=" + home}
 	withPasswordEnv := append(env, "MYSQL_PASSWORD=rootpass")
 
-	runCLI(t, withPasswordEnv, "connect", "mysql-test", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "root", "--password-env", "MYSQL_PASSWORD")
+	runCLI(t, withPasswordEnv, "connection", "add", "mysql-test", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "root", "--password-env", "MYSQL_PASSWORD")
 	queryOut := runCLI(t, withPasswordEnv, "query", "mysql-test", "SELECT id, email FROM users ORDER BY id")
 	if !strings.Contains(queryOut, "alice@example.com") {
 		t.Fatalf("expected query output to include seeded mysql data, got %q", queryOut)
@@ -32,7 +32,7 @@ func TestMySQLE2E(t *testing.T) {
 	}
 
 	// Test read-only connection rejects write
-	runCLI(t, withPasswordEnv, "connect", "mysql-readonly", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "root", "--password-env", "MYSQL_PASSWORD", "--read-only")
+	runCLI(t, withPasswordEnv, "connection", "add", "mysql-readonly", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "root", "--password-env", "MYSQL_PASSWORD", "--read-only")
 
 	readOnlyBlockedOut := runCLI(t, withPasswordEnv, "query", "mysql-readonly", "DELETE FROM users")
 	if !strings.Contains(readOnlyBlockedOut, "read_only_connection_rejected") {
@@ -57,7 +57,7 @@ func TestMySQLE2E_WithCredentialHelper(t *testing.T) {
 
 	helperPath := createFakeCredentialHelper(t, "root", "rootpass")
 
-	runCLI(t, env, "connect", "mysql-helper-test", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--credential-helper", helperPath)
+	runCLI(t, env, "connection", "add", "mysql-helper-test", "--driver", "mysql", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--credential-helper", helperPath)
 	queryOut := runCLI(t, env, "query", "mysql-helper-test", "SELECT id, email FROM users ORDER BY id")
 	if !strings.Contains(queryOut, "alice@example.com") {
 		t.Fatalf("expected credential-helper query output to include seeded mysql data, got %q", queryOut)

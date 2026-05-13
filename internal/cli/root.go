@@ -10,8 +10,7 @@ func NewRootCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		newConnectCommand(),
-		newDisconnectCommand(),
+		newConnectionCommand(),
 		newQueryCommand(),
 		newSchemaCommand(),
 		newCountCommand(),

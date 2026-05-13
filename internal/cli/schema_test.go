@@ -31,7 +31,7 @@ func TestCountCommand_RejectsWriteQueryTarget(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	connectCmd := newConnectCommand()
+	connectCmd := newConnectionAddCommand()
 	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)
@@ -59,7 +59,7 @@ func TestCountCommand_RejectsMultiStatementTableTarget(t *testing.T) {
 	defer func() { openConnectionForValidation = originalOpen }()
 	openConnectionForValidation = func(conn config.Connection) error { return nil }
 
-	connectCmd := newConnectCommand()
+	connectCmd := newConnectionAddCommand()
 	connectCmd.SetArgs([]string{"local", "--driver", "postgres", "--database", "app", "--credential-helper", inlineCredentialHelperCommand("secret")})
 	if err := connectCmd.Execute(); err != nil {
 		t.Fatal(err)

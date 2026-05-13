@@ -15,7 +15,7 @@ func TestPostgresE2E(t *testing.T) {
 	env := []string{"DB_AGENT_MASTER_KEY=test-master-key", "HOME=" + home}
 	withPasswordEnv := append(env, "PG_PASSWORD=postgres")
 
-	runCLI(t, withPasswordEnv, "connect", "pg-test", "--driver", "postgres", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "postgres", "--password-env", "PG_PASSWORD")
+	runCLI(t, withPasswordEnv, "connection", "add", "pg-test", "--driver", "postgres", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "postgres", "--password-env", "PG_PASSWORD")
 	queryOut := runCLI(t, withPasswordEnv, "query", "pg-test", "SELECT id, email FROM users ORDER BY id")
 	if !strings.Contains(queryOut, "alice@example.com") {
 		t.Fatalf("expected query output to include seeded postgres data, got %q", queryOut)
@@ -32,7 +32,7 @@ func TestPostgresE2E(t *testing.T) {
 	}
 
 	// Test read-only connection rejects write
-	runCLI(t, withPasswordEnv, "connect", "pg-readonly", "--driver", "postgres", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "postgres", "--password-env", "PG_PASSWORD", "--read-only")
+	runCLI(t, withPasswordEnv, "connection", "add", "pg-readonly", "--driver", "postgres", "--host", "127.0.0.1", "--port", container.HostPort, "--database", "app", "--username", "postgres", "--password-env", "PG_PASSWORD", "--read-only")
 
 	readOnlyBlockedOut := runCLI(t, withPasswordEnv, "query", "pg-readonly", "DELETE FROM users")
 	if !strings.Contains(readOnlyBlockedOut, "read_only_connection_rejected") {
